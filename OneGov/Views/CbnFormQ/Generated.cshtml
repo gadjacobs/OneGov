@@ -1,0 +1,207 @@
+﻿@model CBNFormQ.Models.CbnFormQViewModel
+
+@{
+    ViewBag.Title = "Generated";
+    Layout = null;
+}
+@*@Styles.Render("~/Content/css")*@
+<link rel="stylesheet" type="text/css" href="~/Content/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/Site.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/bootstrap.css" />
+
+<link href="@Server.MapPath("~/Content/bootstrap.min.css")" rel="stylesheet" />
+<link href="@Server.MapPath("~/Content/bootstrap.css")" rel="stylesheet" />
+<link href="@Server.MapPath("~/Content/Site.css")" rel="stylesheet" />
+
+
+<title>CBN Form Q</title>
+
+<style>
+    body {
+        margin: 20px 40px;
+        padding-top: 0;
+    }
+
+    em {
+        font-family: Bodoni MT;
+        font-size: 14px;
+        font-weight: bold;
+        color: black;
+    }
+
+    dt {
+        text-align: left;
+    }
+
+    .logo {
+        width: 150px;
+        height: 150px;
+        margin: 10px 40px;
+    }
+</style>
+
+<body>
+    <div class="row">
+        <div class="col-md-8 col-lg-8 col-sm-8 col-xs-8">
+            @*<img src="~/Content/images/cbnlogotrans.gif" alt="" class="logo"/>*@
+            <img src="@Server.MapPath("~/Content/images/cbnlogotrans.gif")" alt="" class="logo" />
+        </div>
+
+        <div class="col-md-4 col-lg-4 col-sm-4 col-xs-4">
+
+            <h5 style="color: #6b9c39; padding-top: 40px; margin-bottom: 0;">CENTRAL BANK OF NIGERIA</h5>
+            <em>Corporate Head Office</em>
+            <br />
+            <em>Central Business District</em>
+            <br />
+            <em>P.M.B. 0187, Garki, Abuja, FCT</em>
+        </div>
+    </div>
+    <hr style="border: 5px; border-top: 1px solid #679c3b; margin: 0;" />
+    <h4 style="text-align: center; font-weight: 700">TRADE AND EXCHANGE DEPARTMENT</h4>
+
+    <div>
+        <div>
+            <strong>09-61637800</strong>
+            <span style="float:right; margin-right: 30px;">@Model.SubmissionDate</span>
+            <br />
+            <strong>09-61637804</strong>
+            <br />
+            <strong>E-mail address: ted@cbn.gov.ng</strong>
+        </div>
+
+    </div>
+    <br />
+    <br />
+    <div class="container">
+        
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h2 class="panel-title text-center">YOUR INFORMATION</h2>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label for="@Model.TransactionRef" class="col-xs-3 control-label">Transaction Reference</label>
+                            <div class="col-xs-9">
+                                <input class="form-control" value="@Model.TransactionRef">
+                            </div>
+                        </div>
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="@Model.FullName" class="col-xs-3 control-label">Full Name</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.FullName">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="@Model.Bvn" class="col-xs-3 control-label">BVN</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.Bvn">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="@Model.Mobile" class="col-xs-3 control-label">Mobile Number</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.Mobile">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="@Model.Email" class="col-xs-3 control-label">Email Address</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.Email">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="@Model.AnnualTurnover" class="col-xs-3 control-label">Annual Turnover</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.AnnualTurnover">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="@Model.NumberOfEmployees" class="col-xs-3 control-label">Number of Employees</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.NumberOfEmployees">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="@Model.BankName" class="col-xs-3 control-label">Bank Name</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.BankName">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="@Model.AccountNumber" class="col-xs-3 control-label">Account Number</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.AccountNumber">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="@Model.ItemOfImport" class="col-xs-3 control-label">Item of Import</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.ItemOfImport">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="@Model.BeneficiaryName" class="col-xs-3 control-label">Beneficiary Name</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.BeneficiaryName">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="BeneficiaryBankName" class="col-xs-3 control-label">Beneficiary Bank Name</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.BeneficiaryBankName">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="BeneficiaryBankAddress" class="col-xs-3 control-label">Beneficiary Bank Address</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.BeneficiaryBankAdress">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="col-xs-3 control-label">IBAN</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.Iban">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="col-xs-3 control-label">Swift Code</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.SwiftCode">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="col-xs-3 control-label">Amount</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.Amount">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="col-xs-3 control-label">Amount in Words</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.AmountInWords">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="col-xs-3 control-label">Swift Code</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.SwiftCode">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="" class="col-xs-3 control-label">Purpose of Remitance</label>
+                                <div class="col-xs-9">
+                                    <input class="form-control" value="@Model.Purpose">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+</body>

@@ -1,0 +1,553 @@
+﻿@using System.Web.UI.WebControls
+@using Microsoft.AspNet.Identity;
+@model CBNFormQ.Models.CbnFormQViewModel
+@Styles.Render("~/Content/css")
+
+<style>
+    body {
+        margin-top: 40px;
+    }
+
+    .stepwizard-step p {
+        margin-top: 10px;
+    }
+
+    .stepwizard-row {
+        display: table-row;
+    }
+
+    .stepwizard {
+        display: table;
+        width: 50%;
+        position: relative;
+    }
+
+    .stepwizard-step button[disabled] {
+        opacity: 1 !important;
+        filter: alpha(opacity=100) !important;
+    }
+
+    .stepwizard-row:before {
+        top: 14px;
+        bottom: 0;
+        position: absolute;
+        content: " ";
+        width: 100%;
+        height: 1px;
+        background-color: #ccc;
+        z-index: 0;
+    }
+
+    .stepwizard-step {
+        display: table-cell;
+        text-align: center;
+        position: relative;
+    }
+
+    .btn-circle {
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        padding: 6px 0;
+        font-size: 12px;
+        line-height: 1.428571429;
+        border-radius: 15px;
+    }
+</style>
+@{
+    var paymentUrl = @Url.Action("PaymentConfirmation");
+}
+
+@section Scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="@Url.Content("~/Scripts/jquery.cookie-1.4.1.min.js")"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="@Url.Content("~/Scripts/modernizr-2.6.2.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.steps.js")"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap-wizard/1.2/jquery.bootstrap.wizard.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.11.9/validator.js"></script>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var navListItems = $('div.setup-panel div a'),
+                allWells = $('.setup-content'),
+                allNextBtn = $('.nextBtn');
+
+            allWells.hide();
+
+            navListItems.click(function(e) {
+                e.preventDefault();
+                var $target = $($(this).attr('href')),
+                    $item = $(this);
+
+                if (!$item.hasClass('disabled')) {
+                    navListItems.removeClass('btn-primary').addClass('btn-default');
+                    $item.addClass('btn-primary');
+                    allWells.hide();
+                    $target.show();
+                    $target.find('input:eq(0)').focus();
+                }
+            });
+
+            allNextBtn.click(function() {
+                var curStep = $(this).closest(".setup-content"),
+                    curStepBtn = curStep.attr("id"),
+                    nextStepWizard = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next()
+                        .children("a"),
+                    curInputs = curStep.find(
+                        "input[type='text'],input[type='url'],[type='email'],input[type='number'],input[type='tel']"),
+                    isValid = true;
+
+                $(".form-group").removeClass("has-error");
+                for (var i = 0; i < curInputs.length; i++) {
+                    if (!curInputs[i].validity.valid) {
+                        isValid = false;
+                        $(curInputs[i]).closest(".form-group").addClass("has-error");
+                    }
+                }
+
+                if (isValid)
+                    nextStepWizard.removeAttr('disabled').trigger('click');
+            });
+
+            $('div.setup-panel div a.btn-primary').trigger('click');
+        });
+    </script>
+
+    <script>
+        var newUrl = '@Url.Action("Dashboard","Home")';
+        var reference;
+
+        function payWithPaystack() {
+            var loggedIn = '@User.Identity.GetUserName()';
+            var mail;
+            if (!loggedIn) {
+                mail = 'gadexofficial@gmail.com';
+            }
+            else {
+                mail = '@User.Identity.GetUserName()';
+            }
+            var handler = PaystackPop.setup({
+                key: 'pk_test_c30263d1abb945785e9468b0d983c185f4003bf3',
+                email: mail,
+                amount: 600000,
+                @*ref: @Model.TransactionRef,  generates a pseudo-unique reference. Please replace with a reference you generated. Or remove the line entirely so our API will generate one for you*@
+                metadata: {
+                    custom_fields: [
+                        {
+                            display_name: "Mobile Number",
+                            variable_name: "mobile_number",
+                            value: $('#number').val()
+                        }
+                    ]
+                },
+                callback: function (response) {
+                    alert('success. transaction ref is ' + response.reference);
+                    reference = response.reference;
+                    $('#TransactionRef').val(reference);
+                    console.log(reference);
+                    $('#createForm').submit();  
+                },
+                onClose: function () {
+                    alert('An error occured. Click "Pay Now" to retry payment');
+                }
+            });
+            handler.openIframe();
+        }
+    </script>
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                type: 'post',
+                url: '/CbnFormQ/ListBanks',
+                data: {
+                    '__RequestVerificationToken': $('input[name=__RequestVerificationToken]').val()
+                },
+                success: function(data) {
+                    console.log(data);
+
+                    var loggedIn = '@User.Identity.GetUserName()';
+
+                    if (!loggedIn) {
+                        ($('#UserEmail').val('gadexofficial@gmail.com'));
+                    }
+                    else {
+                        $('#UserEmail').val('@User.Identity.GetUserName()');
+                    }
+                    $.each(data.Data,
+                        function (index, value) {
+                            $('#BankName').append('<option value="' + value.Name + '">' + value.Name + '</option>');
+
+                        });
+                }
+            });
+
+            $.ajax({
+                    type: 'post',
+                    url: '/CbnFormQ/Create',
+                    data: {
+                        '__RequestVerificationToken': $('input[name=__RequestVerificationToken]').val(),
+                        'TransactionRef': $('#TransactionRef').val()
+            },
+                success: function(data) {
+                    console.log(data);
+                    console.log($('#TransactionRef').val());
+                }
+            });
+        });
+
+        function sendBvn() {
+            var test = $("#UserBvn").val();
+            if (test.length === 11) {
+                $.ajax({
+                    type: 'post',
+                    url: '/CbnFormQ/Paystack',
+                    data: {
+                        '__RequestVerificationToken': $('input[name=__RequestVerificationToken]').val(),
+                        'Bvn': $("#UserBvn").val()
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        if (data.Status === true) {
+                            console.log('success');
+                            var foo = data.Data;
+                            $('#fullname').val(foo.FirstName + ' ' + foo.LastName);
+                            $('#number').val(foo.Mobile);
+                        }
+                        else {
+                            alert('An error occured, please try again...');
+                        }
+
+                    }
+                });
+            }
+
+        }
+    </script>
+
+}
+
+<div class="container">
+
+    <div class="stepwizard col-md-offset-3">
+        <div class="stepwizard-row setup-panel">
+            <div class="stepwizard-step">
+                <a href="#step-1" type="button" class="btn btn-primary btn-circle">1</a>
+                <p>Step 1</p>
+            </div>
+            <div class="stepwizard-step">
+                <a href="#step-2" type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
+                <p>Step 2</p>
+            </div>
+            <div class="stepwizard-step">
+                <a href="#step-3" type="button" class="btn btn-default btn-circle" disabled="disabled">3</a>
+                <p>Step 3</p>
+            </div>
+            <div class="stepwizard-step">
+                <a href="#step-4" type="button" class="btn btn-default btn-circle" disabled="disabled">4</a>
+                <p>Step 4</p>
+            </div>
+        </div>
+    </div>
+
+    @using (Html.BeginForm("Create", "CbnFormQ", null, FormMethod.Post,
+                new { enctype = "multipart/form-data", @id = "createForm" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="row setup-content" id="step-1">
+            <div class="col-xs-6 col-md-offset-3">
+                <div class="col-md-12">
+                    <h3> Step 1</h3>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Bvn, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.Bvn, new { htmlAttributes = new { @class = "form-control", id = "UserBvn", onblur = "sendBvn()", maxlength = "11", required = "required", PlaceHolder = "Enter your BVN", type = "tel", minlength = "11" } })
+                            @Html.ValidationMessageFor(model => model.Bvn, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", maxlenggth = "100", id = "UserEmail", @readonly = "readonly", required = "required", PlaceHolder = "Enter your Email Address", type = "email" } })
+                            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.FullName, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.FullName, new
+                       {
+                           htmlAttributes = new
+                           {
+                               @class = "form-control", @readonly = "readonly", maxlength = "100",
+                               required = "required",
+                               id = "fullname",
+                               PlaceHolder = "Enter your Fullname"
+                           }
+                       })
+                            @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Mobile, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.Mobile, new
+                       {
+                           htmlAttributes = new
+                           {
+                               @class = "form-control",
+                               maxlength = "11",
+                               required = "required",
+                               PlaceHolder = "Enter your Mobile Number",
+                               id = "number",
+                               type = "tel",
+                               minlength = "10", @readonly = "readonly" }
+                       })
+                            @Html.ValidationMessageFor(model => model.Mobile, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <button class="btn btn-primary nextBtn btn-lg pull-right" type="button">Next</button>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row setup-content" id="step-2">
+            <div class="col-xs-6 col-md-offset-3">
+                <div class="col-md-12">
+                    <h3> Step 2</h3>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AnnualTurnover, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.AnnualTurnover, new { htmlAttributes = new { @class = "form-control", maxlength = "100", id = "AnnualTurnover", required = "required", PlaceHolder = "Annual Turnover" } })
+                            @Html.ValidationMessageFor(model => model.AnnualTurnover, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.NumberOfEmployees, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.NumberOfEmployees, new { htmlAttributes = new { @class = "form-control", maxlength = "100", required = "required", PlaceHolder = "Number of Employees" } })
+                            @Html.ValidationMessageFor(model => model.NumberOfEmployees, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    @*<div class="form-group">
+                            @Html.LabelFor(model => model.BankName, htmlAttributes: new { @class = "control-label" })
+                            <div>
+                                @Html.EditorFor(model => model.BankName, new { htmlAttributes = new { @class = "form-control", maxlength = "100", required = "required", PlaceHolder = "Bank Name" } })
+                                @Html.ValidationMessageFor(model => model.BankName, "", new { @class = "text-danger" })
+                            </div>
+                        </div>*@
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BankName, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            <select id="BankName" name="BankName"></select>
+                            @Html.ValidationMessageFor(model => model.BankName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AccountNumber, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.AccountNumber, new { htmlAttributes = new { @class = "form-control", maxlength = "100", required = "required", PlaceHolder = "Account Number" } })
+                            @Html.ValidationMessageFor(model => model.AccountNumber, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ItemOfImport, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.ItemOfImport, new { htmlAttributes = new { @class = "form-control", maxlength = "100", required = "required", PlaceHolder = "Item of Import" } })
+                            @Html.ValidationMessageFor(model => model.ItemOfImport, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <button class="btn btn-primary nextBtn btn-lg pull-right" type="button">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row setup-content" id="step-3">
+            <div class="col-xs-6 col-md-offset-3">
+                <div class="col-md-12">
+                    <h3> Step 3</h3>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BeneficiaryName, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.BeneficiaryName, new { htmlAttributes = new { @class = "form-control", maxlength = "100", required = "required", PlaceHolder = "Beneficiary Name" } })
+                            @Html.ValidationMessageFor(model => model.BeneficiaryName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BeneficiaryBankName, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.BeneficiaryBankName, new { htmlAttributes = new { @class = "form-control", maxlength = "100", required = "required", PlaceHolder = "Beneficiary Bank Name" } })
+                            @Html.ValidationMessageFor(model => model.BeneficiaryBankName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BeneficiaryBankAdress, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.BeneficiaryBankAdress, new { htmlAttributes = new { @class = "form-control", maxlength = "100", required = "required", PlaceHolder = "Beneficiary Bank Address" } })
+                            @Html.ValidationMessageFor(model => model.BeneficiaryBankAdress, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Iban, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.Iban, new { htmlAttributes = new { @class = "form-control", maxlength = "100", required = "required", PlaceHolder = "IBAN" } })
+                            @Html.ValidationMessageFor(model => model.Iban, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.SwiftCode, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.SwiftCode, new { htmlAttributes = new { @class = "form-control", maxlength = "100", required = "required", PlaceHolder = "Swift Code" } })
+                            @Html.ValidationMessageFor(model => model.SwiftCode, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", maxlength = "100", required = "required", id = "amount", PlaceHolder = "Amount in Naira" } })
+                            @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AmountInWords, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.EditorFor(model => model.AmountInWords, new { htmlAttributes = new { @class = "form-control", maxlength = "1000", required = "required", PlaceHolder = "Amount in Words" } })
+                            @Html.ValidationMessageFor(model => model.AmountInWords, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Purpose, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @Html.TextAreaFor(model => model.Purpose, new { htmlAttributes = new { @class = "form-control", maxlength = "1000", required = "required", row = "3", PlaceHolder = "Purpose of Remittance/Transfer" } })
+                            @Html.ValidationMessageFor(model => model.Purpose, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <input type="hidden" name="TransactionRef" value="" id="TransactionRef" />
+
+                    <button class="btn btn-primary nextBtn btn-lg pull-right" type="button">Next</button>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row setup-content" id="step-4">
+            <div class="col-xs-6 col-md-offset-3">
+                <div class="col-md-12">
+                    <h3> Payment Confirmation</h3>
+
+                    <div class="row">
+                        <div class="well">
+                            <div class="row">
+                                <div class="col-xs-6 col-sm-6 col-md-6">
+                                    <address>
+                                        <strong>Central Bank of Nigeria</strong>
+                                        <br>
+                                        Abuja
+                                        <br>
+                                        Nigeria
+                                        <br>
+                                        <abbr title="Phone">P:</abbr> (234) 81-6829-2123
+                                    </address>
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-md-6 text-right">
+                                    <p>
+                                        <em>Date: @DateTime.Now.ToLongDateString()</em>
+                                    </p>
+                                    <p>
+                                        <em>Receipt #: 34522677W</em>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="text-center">
+                                    <h1>Summary</h1>
+                                </div>
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Application</th>
+
+                                            <td>   </td>
+                                            <td>   </td>
+
+                                            <th class="text-center">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="col-md-10">
+                                                <h4>
+                                                    <em>CBN Form Q</em>
+                                                </h4>
+                                            </td>
+                                            <td>   </td>
+                                            <td>   </td>
+                                            <td class="col-md-2 text-center">₦4,800</td>
+                                        </tr>
+
+                                        <tr>
+
+                                            <td class="col-md-10">
+                                                <h4>
+                                                    <em>Service Charge</em>
+                                                </h4>
+                                            </td>
+                                            <td>   </td>
+                                            <td>   </td>
+                                            <td class="col-md-2 text-center">₦1,200</td>
+                                        </tr>
+                                        <tr>
+                                            <td>   </td>
+                                            <td>   </td>
+                                            <td class="text-right">
+                                                <h4>
+                                                    <strong>Total: </strong>
+                                                </h4>
+                                            </td>
+                                            <td class="text-center text-danger">
+                                                <h4>
+                                                    <strong>₦6,000</strong>
+                                                </h4>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-success btn-lg btn-block" onclick="payWithPaystack()">
+                                    Pay Now   <span class="glyphicon glyphicon-chevron-right"></span>
+                                </button>
+                                <div class="form-group">
+                                    <div class="col-md-offset-2 col-md-10">
+                                        <input id="submitBtn" type="submit" value="Create" style="display: none" class="btn btn-default"/>
+                                    </div>
+                                </div>
+                                   
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    }
+</div>

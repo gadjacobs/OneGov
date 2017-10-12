@@ -1,0 +1,76 @@
+﻿@model IEnumerable<CBNFormQ.Models.CbnFormQViewModel>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="container">
+
+    <!-- Portfolio Item Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                CBN Form Q
+                <small>Trade and Exchange Department</small>
+            </h1>
+        </div>
+    </div>
+    <!-- /.row -->
+    <!-- Portfolio Item Row -->
+    <div class="row">
+
+        <div class="col-md-8">
+            <img class="img-responsive" src="~/Content/images/CBN.jpg" alt="">
+        </div>
+
+        <div class="col-md-4">
+            <h3>Conditions:</h3>
+            <p>
+                Form Q is for Small and Medium Enterprises and Retail Businesses.
+                The Central Bank of Nigeria introduced the Form Q as part of its efforts to
+            improve access to foreign exchange by SME's. The form has been designed to ease the documentation requirements by this sector.</p>
+            <h3>Project Details</h3>
+            <ul>
+                <li>Lorem Ipsum</li>
+                <li>Dolor Sit Amet</li>
+                <li>Consectetur</li>
+                <li>Adipiscing Elit</li>
+            </ul>
+            @Html.ActionLink("Complete the form Now", "Create", "CbnFormQ")
+        </div>
+
+    </div>
+    <!-- /.row -->
+    <!-- Related Projects Row -->
+    <div class="row">
+
+        <div class="col-lg-12">
+            <h3 class="page-header">Related Projects</h3>
+        </div>
+
+        <div class="col-sm-3 col-xs-6">
+            <a href="#">
+                <img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">
+            </a>
+        </div>
+
+        <div class="col-sm-3 col-xs-6">
+            <a href="#">
+                <img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">
+            </a>
+        </div>
+
+        <div class="col-sm-3 col-xs-6">
+            <a href="#">
+                <img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">
+            </a>
+        </div>
+
+        <div class="col-sm-3 col-xs-6">
+            <a href="#">
+                <img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">
+            </a>
+        </div>
+
+    </div>
+</div>
